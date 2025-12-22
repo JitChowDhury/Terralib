@@ -1,5 +1,9 @@
 #include "raylib.h"
 #include "raymath.h"
+
+#include <iostream>
+#include <vector>
+
 int main()
 {
   const int WINDOW_WIDTH{900};
@@ -9,12 +13,20 @@ int main()
 
   InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Terralib");
 
+  // GRID LOGIC
+
   int posX{0};
   int posY{0};
   int tileSize{32};
 
   int gridCountX = WINDOW_WIDTH / tileSize;
   int gridCountY = WINDOW_HEIGHT / tileSize;
+
+  // BLOCKS
+  Texture2D tileSet = LoadTexture("assets/sprites/world_tileset.png");
+  SetTextureFilter(tileSet, TEXTURE_FILTER_POINT);
+  std::vector<Rectangle> placedBlocks;
+  Rectangle source{0.0f, 0.0f, 16.0f, 16.0f};
 
   while (!WindowShouldClose())
   {
@@ -28,6 +40,11 @@ int main()
       ToggleBorderlessWindowed();
     }
 
+    if (IsMouseButtonPressed(0))
+    {
+      placedBlocks.emplace_back(Rectangle{(float)blockX, (float)blockY, (float)tileSize, (float)tileSize});
+    }
+
     BeginDrawing();
     ClearBackground(BLACK);
     posY = 0.f;
@@ -38,13 +55,16 @@ int main()
       {
 
         DrawRectangleLines(posX, posY, tileSize, tileSize, WHITE);
-        // DrawRectangleLinesEx(Rectangle{static_cast<float>(posX), static_cast<float>(posY), static_cast<float>(tileSize - 2), static_cast<float>(tileSize - 2)}, 2.f, WHITE);
+
         posX += tileSize;
       }
       posY += tileSize;
     }
 
-    DrawRectangle(blockX, blockY, tileSize, tileSize, WHITE);
+    for (auto &rec : placedBlocks)
+    {
+      DrawTexturePro(tileSet, source, rec, Vector2{0.f, 0.f}, 0.0f, WHITE);
+    }
     EndDrawing();
   }
 }
