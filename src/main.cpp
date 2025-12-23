@@ -1,6 +1,8 @@
 #include "raylib.h"
 #include "raymath.h"
 
+#include "Player/Player.h"
+
 #include <iostream>
 #include <vector>
 
@@ -18,16 +20,19 @@ int main()
   // music
   Music music = LoadMusicStream("assets/music/01. Overworld Day.mp3");
   music.looping = true;
+  SetMusicVolume(music, 0.03f);
+
   PlayMusicStream(music);
 
   // CAMERA
   Camera2D camera;
-  camera.target = Vector2{0.f, 0.f}; // this is what camera follows
-  camera.offset = Vector2{WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2};
-  // camera.offset = {0.f, 0.f};
+  camera.target = Vector2{0.f, 0.f};                            // this is what camera follows
+  camera.offset = Vector2{WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2}; // camera draws target at offset
   camera.rotation = 0.0f;
   camera.zoom = 1.0f;
 
+  // PLAYER
+  Player player(16.f, 6.f, camera.target);
   // GRID LOGIC
 
   int posX{0};
@@ -49,18 +54,22 @@ int main()
   // WORLD GEN
   int height = 5;
 
+  //  MAIN GAME LOOP
   while (!WindowShouldClose())
   {
-    UpdateMusicStream(music);
 
-    if (IsKeyDown(KEY_A))
-      camera.target.x -= 5;
-    if (IsKeyDown(KEY_D))
-      camera.target.x += 5;
-    if (IsKeyDown(KEY_W))
-      camera.target.y -= 5;
-    if (IsKeyDown(KEY_S))
-      camera.target.y += 5;
+    UpdateMusicStream(music);
+    player.HandleInput();
+    camera.target = player.GetPosition();
+
+    // if (IsKeyDown(KEY_A))
+    //   camera.target.x -= 5;
+    // if (IsKeyDown(KEY_D))
+    //   camera.target.x += 5;
+    // if (IsKeyDown(KEY_W))
+    //   camera.target.y -= 5;
+    // if (IsKeyDown(KEY_S))
+    //   camera.target.y += 5;
 
     Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), camera);
 
@@ -119,6 +128,8 @@ int main()
         }
       }
     }
+
+    player.Draw();
 
     for (auto &rec : placedBlocks)
     {

@@ -17,8 +17,10 @@ add_subdirectory(${RAYLIB_ROOT})
 
 # Source files
 file(GLOB_RECURSE SOURCES
-    src/*.cpp
+    src/main.cpp
+    src/Player/Player.cpp
 )
+
 
 add_executable(Terraria ${SOURCES})
 
