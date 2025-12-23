@@ -13,6 +13,13 @@ int main()
 
   InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Terralib");
 
+  InitAudioDevice();
+
+  // music
+  Music music = LoadMusicStream("assets/music/01. Overworld Day.mp3");
+  music.looping = true;
+  PlayMusicStream(music);
+
   // CAMERA
   Camera2D camera;
   camera.target = Vector2{0.f, 0.f}; // this is what camera follows
@@ -29,17 +36,23 @@ int main()
   bool isGridActive{true};
 
   // BLOCKS
-  Texture2D tileSet = LoadTexture("assets/sprites/world_tileset.png");
-  SetTextureFilter(tileSet, TEXTURE_FILTER_POINT);
+  Texture2D grassTileSet = LoadTexture("assets/Terraria_assets/grass.png");
+  Texture2D dirtTileSet = LoadTexture("assets/Terraria_assets/Tiles_0.png");
+  Texture2D background = LoadTexture("assets/Terraria_assets/SplashScreens/Splash_9_0.png");
   std::vector<Rectangle> placedBlocks;
-  Rectangle grass{0.0f, 0.0f, 16.0f, 16.0f};
-  Rectangle dirt{0.0f, 16.0f, 16.0f, 16.0f};
+  Rectangle grass{18.0f, 0.0f, 16.0f, 16.0f};
+  Rectangle dirt{36.0f, 18.0f, 16.0f, 16.0f};
+  SetTextureFilter(grassTileSet, TEXTURE_FILTER_POINT);
+  SetTextureFilter(dirtTileSet, TEXTURE_FILTER_POINT);
+  SetTextureFilter(background, TEXTURE_FILTER_POINT);
 
   // WORLD GEN
   int height = 5;
 
   while (!WindowShouldClose())
   {
+    UpdateMusicStream(music);
+
     if (IsKeyDown(KEY_A))
       camera.target.x -= 5;
     if (IsKeyDown(KEY_D))
@@ -54,12 +67,15 @@ int main()
     int blockX = (int)(floor(mousePos.x / tileSize) * tileSize);
     int blockY = (int)(floor(mousePos.y / tileSize) * tileSize);
 
-    int tileOnScreenX = (WINDOW_WIDTH / tileSize) + 2;  // 2 for safety check
-    int tileOnScreenY = (WINDOW_HEIGHT / tileSize) + 2; // 2 for safety check
+    // how many tile can fit on screen + 5 for safety check
+    int tileOnScreenX = (WINDOW_WIDTH / tileSize) + 5;
+    int tileOnScreenY = (WINDOW_HEIGHT / tileSize) + 5;
 
+    // start of drawing tile
+    // cam.target.x/tilesize means in which grid the target is on then substract half of the tile number
     int startX = (int)(floor(camera.target.x / tileSize) - tileOnScreenX / 2);
     int startY = (int)(floor(camera.target.y / tileSize) - tileOnScreenY / 2);
-
+    // its that simple
     int endX = startX + tileOnScreenX;
     int endY = startY + tileOnScreenY;
 
@@ -78,8 +94,9 @@ int main()
     }
     BeginDrawing();
     ClearBackground(BLACK);
-
+    DrawTexture(background, 0, 0, WHITE);
     BeginMode2D(camera);
+
     // DRAW GRIDS
     for (int y{startY}; y < endY; y++)
     {
@@ -94,20 +111,24 @@ int main()
         }
         if (y == height)
         {
-          DrawTexturePro(tileSet, grass, Rectangle{(float)posX, (float)posY, (float)tileSize, (float)tileSize}, Vector2{0.f, 0.f}, 0.0f, WHITE);
+          DrawTexturePro(grassTileSet, grass, Rectangle{(float)posX, (float)posY, (float)tileSize, (float)tileSize}, Vector2{0.f, 0.f}, 0.0f, WHITE);
         }
         else if (y > height)
         {
-          DrawTexturePro(tileSet, dirt, Rectangle{(float)posX, (float)posY, (float)tileSize, (float)tileSize}, Vector2{0.f, 0.f}, 0.0f, WHITE);
+          DrawTexturePro(dirtTileSet, dirt, Rectangle{(float)posX, (float)posY, (float)tileSize, (float)tileSize}, Vector2{0.f, 0.f}, 0.0f, WHITE);
         }
       }
     }
 
     for (auto &rec : placedBlocks)
     {
-      DrawTexturePro(tileSet, dirt, rec, Vector2{0.f, 0.f}, 0.0f, WHITE);
+      DrawTexturePro(grassTileSet, grass, rec, Vector2{0.f, 0.f}, 0.0f, WHITE);
     }
     EndMode2D();
     EndDrawing();
   }
+  UnloadMusicStream(music);
+  CloseAudioDevice();
+  UnloadTexture(background);
+  CloseWindow();
 }
