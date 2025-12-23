@@ -6,8 +6,8 @@
 
 int main()
 {
-  const int WINDOW_WIDTH{900};
-  const int WINDOW_HEIGHT{506};
+  const int WINDOW_WIDTH{1280};
+  const int WINDOW_HEIGHT{720};
 
   SetTargetFPS(60);
 
@@ -18,6 +18,7 @@ int main()
   int posX{0};
   int posY{0};
   int tileSize{32};
+  bool isGridActive{true};
 
   int gridCountX = WINDOW_WIDTH / tileSize;
   int gridCountY = WINDOW_HEIGHT / tileSize;
@@ -26,7 +27,11 @@ int main()
   Texture2D tileSet = LoadTexture("assets/sprites/world_tileset.png");
   SetTextureFilter(tileSet, TEXTURE_FILTER_POINT);
   std::vector<Rectangle> placedBlocks;
-  Rectangle source{0.0f, 0.0f, 16.0f, 16.0f};
+  Rectangle grass{0.0f, 0.0f, 16.0f, 16.0f};
+  Rectangle dirt{0.0f, 16.0f, 16.0f, 16.0f};
+
+  // WORLD GEN
+  int height = 5;
 
   while (!WindowShouldClose())
   {
@@ -44,26 +49,39 @@ int main()
     {
       placedBlocks.emplace_back(Rectangle{(float)blockX, (float)blockY, (float)tileSize, (float)tileSize});
     }
-
+    if (IsKeyPressed(KEY_N))
+    {
+      isGridActive = !isGridActive;
+    }
     BeginDrawing();
     ClearBackground(BLACK);
-    posY = 0.f;
+    // DRAW GRIDS
     for (int y{0}; y <= gridCountY; y++)
     {
-      posX = 0;
+
       for (int x{0}; x <= gridCountX; x++)
       {
 
-        DrawRectangleLines(posX, posY, tileSize, tileSize, WHITE);
-
-        posX += tileSize;
+        posX = x * tileSize;
+        posY = y * tileSize;
+        if (isGridActive)
+        {
+          DrawRectangleLines(posX, posY, tileSize, tileSize, WHITE);
+        }
+        if (gridCountY - y == height - 1)
+        {
+          DrawTexturePro(tileSet, grass, Rectangle{(float)posX, (float)posY, (float)tileSize, (float)tileSize}, Vector2{0.f, 0.f}, 0.0f, WHITE);
+        }
+        else if (gridCountY - y < height - 1)
+        {
+          DrawTexturePro(tileSet, dirt, Rectangle{(float)posX, (float)posY, (float)tileSize, (float)tileSize}, Vector2{0.f, 0.f}, 0.0f, WHITE);
+        }
       }
-      posY += tileSize;
     }
 
     for (auto &rec : placedBlocks)
     {
-      DrawTexturePro(tileSet, source, rec, Vector2{0.f, 0.f}, 0.0f, WHITE);
+      DrawTexturePro(tileSet, dirt, rec, Vector2{0.f, 0.f}, 0.0f, WHITE);
     }
     EndDrawing();
   }
