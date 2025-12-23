@@ -38,7 +38,7 @@ int main()
   int posX{0};
   int posY{0};
   int tileSize{32};
-  bool isGridActive{true};
+  bool isGridActive{false};
 
   // BLOCKS
   Texture2D grassTileSet = LoadTexture("assets/Terraria_assets/grass.png");
