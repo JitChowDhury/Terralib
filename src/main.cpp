@@ -63,7 +63,7 @@ int main()
   {
     std::cout << GetScreenWidth() << std::endl;
     UpdateMusicStream(music);
-    player.HandleInput();
+    player.HandleInput(tileSize, height);
     camera.target = player.GetPosition();
 
     // if (IsKeyDown(KEY_A))
