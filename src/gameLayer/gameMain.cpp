@@ -9,6 +9,7 @@
 struct GameData
 {
 	GameMap gameMap;
+	Camera2D camera;
 }gameData;
 
 AssetManager assetManager;
@@ -24,6 +25,10 @@ bool initGame()
 	gameData.gameMap.getBlockUnsafe(3, 3).type = Block::dirt;
 	gameData.gameMap.getBlockUnsafe(4, 4).type = Block::dirt;
 
+	gameData.camera.target = { 0,0 };
+	gameData.camera.rotation = 0.0f;
+	gameData.camera.zoom = 100.0f;
+
 	return true;
 }
 
@@ -32,7 +37,21 @@ bool updateGame()
 	float deltaTime = GetFrameTime();
 	if (deltaTime > 1.f / 5) { deltaTime = 1.f / 5; }
 
+	gameData.camera.offset = { GetScreenWidth() / 2.0f,GetScreenHeight() / 2.0f };
+
 	ClearBackground(BLACK);
+
+
+	#pragma region cameraMovement
+
+	if (IsKeyDown(KEY_LEFT)) gameData.camera.target.x -= 5.f * deltaTime;
+	if (IsKeyDown(KEY_RIGHT)) gameData.camera.target.x += 5.f * deltaTime;
+	if (IsKeyDown(KEY_UP)) gameData.camera.target.y -= 5.f * deltaTime;
+	if (IsKeyDown(KEY_DOWN)) gameData.camera.target.y += 5.f * deltaTime;
+
+	#pragma endregion
+
+	BeginMode2D(gameData.camera);
 
 	for (int y = 0; y < gameData.gameMap.h; y++)
 	{
@@ -42,7 +61,7 @@ bool updateGame()
 
 			if (b.type != Block::air)
 			{
-				float size = 32;
+				float size = 1;
 				float posX = x * size;
 				float posY = y * size;
 
@@ -59,7 +78,7 @@ bool updateGame()
 	}
 
 	//DrawText("My game", 100, 200, 26, RED);
-
+	EndMode2D();
 	return true;
 }
 
