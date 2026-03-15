@@ -3,7 +3,7 @@
 
 void GameMap::create(int w, int h)
 {
-	*this = {};
+	*this = {};//null
 	mapData.resize(w * h);
 
 	this->w = w;
