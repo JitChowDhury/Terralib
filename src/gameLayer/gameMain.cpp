@@ -80,7 +80,12 @@ bool updateGame()
 		auto b = gameData.gameMap.getBlockSafe(blockX, blockY);
 		if (b)
 		{
-			b->type = Block::blueRubyBlock;
+			if (IsKeyPressed(KEY_ONE))
+				b->type = Block::glass;
+			else if (IsKeyPressed(KEY_TWO))
+				b->type = Block::sand;
+			else if (IsKeyPressed(KEY_THREE))
+				b->type = Block::rubyBlock;
 		}
 	}
 
