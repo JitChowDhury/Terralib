@@ -12,7 +12,7 @@ int main()
 	#endif
 
 
-	SetTargetFPS(240);
+	//SetTargetFPS(240);
 	SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 	InitWindow(800, 450, "Terraria");
 	SetExitKey(KEY_NULL);
