@@ -5,6 +5,7 @@
 #include "assetManager.h"
 #include "gameMap.h"
 #include "helpers.h"
+#include "worldGenerator.h"
 
 
 
@@ -19,20 +20,12 @@ AssetManager assetManager;
 bool initGame()
 {
 	assetManager.loadAll();
-	gameData.gameMap.create(340, 340);
 
-	for (int i = 0; i < 340; i++)
-	{
-		for (int j = 0; j < 340; j++)
-		{
-			gameData.gameMap.getBlockUnsafe(i, j).type = Block::stone;
-		}
-	}
+	generateWorld(gameData.gameMap);
 
-
-	gameData.camera.target = { 0,0 };
+	gameData.camera.target = { 450.0f, 80.0f };
 	gameData.camera.rotation = 0.0f;
-	gameData.camera.zoom = 50.0f;
+	gameData.camera.zoom = 40.0f;
 
 	return true;
 }
