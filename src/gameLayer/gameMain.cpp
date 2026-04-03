@@ -6,6 +6,7 @@
 #include "gameMap.h"
 #include "helpers.h"
 #include "worldGenerator.h"
+#include "imgui.h"
 
 
 
@@ -42,10 +43,12 @@ bool updateGame()
 
 	#pragma region cameraMovement
 
-	if (IsKeyDown(KEY_LEFT)) gameData.camera.target.x -= 5.f * deltaTime;
-	if (IsKeyDown(KEY_RIGHT)) gameData.camera.target.x += 5.f * deltaTime;
-	if (IsKeyDown(KEY_UP)) gameData.camera.target.y -= 5.f * deltaTime;
-	if (IsKeyDown(KEY_DOWN)) gameData.camera.target.y += 5.f * deltaTime;
+	static float CAMERA_SPEED = 10;
+
+	if (IsKeyDown(KEY_LEFT)) gameData.camera.target.x -= CAMERA_SPEED * deltaTime;
+	if (IsKeyDown(KEY_RIGHT)) gameData.camera.target.x += CAMERA_SPEED * deltaTime;
+	if (IsKeyDown(KEY_UP)) gameData.camera.target.y -= CAMERA_SPEED * deltaTime;
+	if (IsKeyDown(KEY_DOWN)) gameData.camera.target.y += CAMERA_SPEED * deltaTime;
 
 	#pragma endregion
 
@@ -133,6 +136,14 @@ bool updateGame()
 	#pragma endregion
 
 	EndMode2D();
+
+	ImGui::Begin("Game Control");
+	ImGui::SliderFloat("Camera zoom:", &gameData.camera.zoom, 10, 150);
+	ImGui::SliderFloat("Camera speed:", &CAMERA_SPEED, 10, 150);
+
+	ImGui::End();
+
+
 	DrawFPS(20, 20);
 	return true;
 }
