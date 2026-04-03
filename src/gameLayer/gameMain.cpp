@@ -25,7 +25,7 @@ bool initGame()
 
 	gameData.camera.target = { 450.0f, 80.0f };
 	gameData.camera.rotation = 0.0f;
-	gameData.camera.zoom = 40.0f;
+	gameData.camera.zoom = 10.0f;
 
 	return true;
 }
