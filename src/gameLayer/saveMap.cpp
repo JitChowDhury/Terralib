@@ -1,7 +1,7 @@
 #include "saveMap.h"
 #include <asserts.h>
 
-bool saveBlockDataToFile(std::vector<Block> blocks, int w, int h, const char* fileName)
+bool saveBlockDataToFile(std::vector<Block> &blocks, int w, int h, const char* fileName)
 {
     std::ofstream f(fileName, std::ios::binary);
 

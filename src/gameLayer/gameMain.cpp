@@ -28,6 +28,8 @@ struct GameData
 
 AssetManager assetManager;
 
+
+
 bool showImgui = false;
  
 bool initGame()
@@ -45,6 +47,7 @@ bool initGame()
 
 bool updateGame()
 {
+
 	float deltaTime = GetFrameTime();
 	if (deltaTime > 1.f / 5) { deltaTime = 1.f / 5; }
 	
@@ -110,9 +113,45 @@ bool updateGame()
 		}
 	}
 
+	//#pragma region draw background
 
+	//Camera2D bgCamera = gameData.camera;
+	//bgCamera.zoom = 1.0f;
+	//bgCamera.offset = gameData.camera.offset;
 
+	//BeginMode2D(bgCamera);
 
+	//// visible world size
+	//float viewWidth = GetScreenWidth() / gameData.camera.zoom;
+	//float viewHeight = GetScreenHeight() / gameData.camera.zoom;
+
+	//Vector2 camTarget = gameData.camera.target;
+
+	//// top-left of camera view
+	//Vector2 topLeft = {
+	//	camTarget.x - viewWidth / 2,
+	//	camTarget.y - viewHeight / 2
+	//};
+
+	//Rectangle dest = {
+	//	topLeft.x,
+	//	topLeft.y,
+	//	viewWidth,
+	//	viewHeight
+	//};
+
+	//DrawTexturePro(
+	//	assetManager.bg,
+	//	{ 0,0,(float)assetManager.bg.width,(float)assetManager.bg.height },
+	//	dest,
+	//	{ 0,0 },
+	//	0,
+	//	WHITE
+	//);
+
+	//EndMode2D();
+
+	//#pragma endregion
 
 	#pragma region draw world
 
@@ -131,9 +170,6 @@ bool updateGame()
 
 	endXView = Clamp(endXView, 0, gameData.gameMap.w - 1);
 	endYView = Clamp(endYView, 0, gameData.gameMap.h - 1);
-
-
-	
 
 	for (int y = startYView; y <=endYView; y++)
 	{
@@ -197,7 +233,7 @@ bool updateGame()
 		}
 		ImGui::InputText("File name", gameData.saveName, sizeof(gameData.saveName));
 
-		if (ImGui::Button("Safe to file"))
+		if (ImGui::Button("Save to file"))
 		{
 			std::string path = RESOURCES_PATH "structures/";
 			path += gameData.saveName;
@@ -255,8 +291,6 @@ bool updateGame()
 		ImGui::End();
 
 	}
-
-
 
 	DrawFPS(20, 20);
 	return true;

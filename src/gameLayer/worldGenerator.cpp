@@ -1,6 +1,8 @@
 #include "worldGenerator.h"
 #include "randomStuff.h"
 #include <FastNoiseSIMD.h>
+#include <structure.h>
+#include <saveMap.h>
 
 void generateWorld(GameMap& gameMap, int seed)
 {
@@ -9,6 +11,12 @@ void generateWorld(GameMap& gameMap, int seed)
 
 	gameMap.create(w, h);
 	std::ranlux24_base rng(seed++);
+
+	Structure treeStructure;
+	loadBlockDataFromFile(treeStructure.mapData, treeStructure.w, treeStructure.h, RESOURCES_PATH "structures/tree.bin");
+
+	Structure houseStructure;
+	loadBlockDataFromFile(houseStructure.mapData, houseStructure.w, houseStructure.h, RESOURCES_PATH "structures/house.bin");
 
 	std::unique_ptr<FastNoiseSIMD> dirtNoiseGenerator(FastNoiseSIMD::NewFastNoiseSIMD());
 	//std::unique_ptr<FastNoiseSIMD> stoneNoiseGenerator(FastNoiseSIMD::NewFastNoiseSIMD());
@@ -179,6 +187,105 @@ void generateWorld(GameMap& gameMap, int seed)
 			radius = radius * 0.9f + targetRadius * 0.1f;
 
 			radius = std::clamp(radius, 2.5f, 7.5f);
+		}
+	}
+
+	#pragma endregion
+
+
+	#pragma region fill trees
+
+	for (int x = 0; x < w; x++)
+	{
+		if (getRandomChance(rng, 0.04))
+		{
+			for (int y = 0; y < h; y++)
+			{
+				auto type = gameMap.getBlockUnsafe(x, y).type;
+
+				if (type == Block::air)
+				{
+					continue;
+				}
+
+				if (type == Block::grassBlock)
+				{
+					// plant tree
+					Vector2 spawnPos{ (float)x, (float)y };
+
+					spawnPos.x -= treeStructure.w / 2;
+					spawnPos.y -= treeStructure.h;
+
+					treeStructure.pasteIntoMap(gameMap, spawnPos);
+
+					x += 3; // we don't plant a tree to overlap this one
+					break;
+				}
+				else
+				{
+					break;
+				}
+			}
+		}
+	}
+
+	#pragma endregion
+
+	#pragma region fill houses
+
+	for (int x = 0; x < w; x++)
+	{
+		if (getRandomChance(rng, 0.04))
+		{
+			for (int y = 0; y < h; y++)
+			{
+				auto type = gameMap.getBlockUnsafe(x, y).type;
+
+				if (type == Block::air) continue;
+
+				if (type == Block::grassBlock)
+				{
+					Vector2 spawnPos{ (float)x, (float)y };
+
+					spawnPos.x -= houseStructure.w / 2;
+					spawnPos.y -= houseStructure.h - 1;
+
+					
+					bool valid = true;
+					int baseY = y;
+
+					for (int i = 0; i < houseStructure.w; i++)
+					{
+						int checkX = (int)spawnPos.x + i;
+
+						int foundY = -1;
+						for (int yy = 0; yy < h; yy++)
+						{
+							auto t = gameMap.getBlockUnsafe(checkX, yy).type;
+							if (t != Block::air)
+							{
+								foundY = yy;
+								break;
+							}
+						}
+
+						if (foundY == -1 || abs(foundY - baseY) > 2)
+						{
+							valid = false;
+							break;
+						}
+					}
+
+					if (valid)
+					{
+						houseStructure.pasteIntoMap(gameMap, spawnPos);
+						x += houseStructure.w;
+					}
+
+					break;
+				}
+				else break;
+			}
 		}
 	}
 
