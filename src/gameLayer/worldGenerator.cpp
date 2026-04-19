@@ -104,34 +104,47 @@ void generateWorld(GameMap& gameMap, int seed)
 	FastNoiseSIMD::FreeNoiseSet(cavesNoise);
 
 	#pragma region perlin worms
-	
+
 	for (int i = 0; i < 20; i++)
 	{
-		//pick a random starting point
-		//it's important for x and y to be floats
-		float x = getRandomInt(rng, 10, w - 10);
-		float y = getRandomInt(rng, 51, h - 10);
+		// Random starting point
+		float x = (float)getRandomInt(rng, 10, w - 10);
+		float y = (float)getRandomInt(rng, 51, h - 10);
 
-		//initial movement direction(-1 to 1 range)
-		float dirX = (getRandomFloat(rng, -1, 1));
-		float dirY = (getRandomFloat(rng, -1, 1));
+		// Initial direction
+		float dirX = getRandomFloat(rng, -1, 1);
+		float dirY = getRandomFloat(rng, -1, 1);
+
+		// Normalize initial direction
+		float len = sqrt(dirX * dirX + dirY * dirY);
+		if (len != 0)
+		{
+			dirX /= len;
+			dirY /= len;
+		}
 
 		int wormLength = getRandomInt(rng, 200, 700);
-		float radius = 2.5f;
-		int changeDirectionTime = getRandomInt(rng, 5, 20);
+
+		float radius = getRandomFloat(rng, 2.5f, 4.5f);
+		float speed = getRandomFloat(rng, 1.2f, 2.0f);
+
+		// Controls how curvy the worm is (personality)
+		float turnStrength = getRandomFloat(rng, 0.05f, 0.25f);
 
 		for (int j = 0; j < wormLength; j++)
 		{
-			int intRadius = std::ceil(radius);
-			for (int  ox = -intRadius; ox <= intRadius; ox++)
+			int intRadius = (int)std::ceil(radius);
+
+			// Dig circle
+			for (int ox = -intRadius; ox <= intRadius; ox++)
 			{
 				for (int oy = -intRadius; oy <= intRadius; oy++)
 				{
 					float distSq = ox * ox + oy * oy;
 					if (distSq <= radius * radius)
 					{
-						int digX = x + ox;
-						int digY = y + oy;
+						int digX = (int)x + ox;
+						int digY = (int)y + oy;
 
 						auto b = gameMap.getBlockSafe(digX, digY);
 						if (b)
@@ -141,36 +154,33 @@ void generateWorld(GameMap& gameMap, int seed)
 					}
 				}
 			}
-			changeDirectionTime--;
-			if (changeDirectionTime <= 0)
+
+			// Smooth turning (no jitter)
+			dirX += getRandomFloat(rng, -1.0f, 1.0f) * turnStrength;
+			dirY += getRandomFloat(rng, -1.0f, 1.0f) * turnStrength;
+
+			// Slight downward bias (natural caves)
+			dirY += 0.02f;
+
+			// Normalize direction
+			float len = sqrt(dirX * dirX + dirY * dirY);
+			if (len != 0)
 			{
-				changeDirectionTime = getRandomInt(rng, 5, 20);
-				if(getRandomChance(rng,0.7))
-				{
-					float keepFactor = 0.8;
-
-					dirX = dirX * keepFactor + (getRandomFloat(rng, -1, 1)) * (1.f - keepFactor);
-					dirY = dirY * keepFactor + (getRandomFloat(rng, -1, 1)) * (1.f - keepFactor);
-				}
-				else
-				{
-					float keepFactor = 0.2;
-
-					dirX = dirX * keepFactor + (getRandomFloat(rng, -1, 1)) * (1.f - keepFactor);
-					dirY = dirY * keepFactor + (getRandomFloat(rng, -1, 1)) * (1.f - keepFactor);
-	
-				}
-
-
+				dirX /= len;
+				dirY /= len;
 			}
 
-			x += dirX * 1.5f;
-			y += dirY * 1.5f;
+			// Move
+			x += dirX * speed;
+			y += dirY * speed;
 
-			radius += (getRandomFloat(rng, -0.2, 0.2));
-			radius = std::clamp(radius, 2.2f,8.5f);
+			// Smooth radius change
+			float targetRadius = radius + getRandomFloat(rng, -0.3f, 0.3f);
+			radius = radius * 0.9f + targetRadius * 0.1f;
+
+			radius = std::clamp(radius, 2.5f, 7.5f);
 		}
-
-
 	}
+
+	#pragma endregion
 }
